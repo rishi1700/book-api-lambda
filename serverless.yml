@@ -1,0 +1,112 @@
+service: book-api-lambda
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-west-1
+  environment:
+    DYNAMO_TABLE: Books
+    JWT_SECRET: your_secret
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Scan
+          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/Books
+
+functions:
+  getBooks:
+    handler: handlers/getBooks.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3
+    events:
+      - http:
+          path: books
+          method: get
+  createBook:
+    handler: handlers/createBook.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3
+    events:
+      - http:
+          path: books
+          method: post
+  getBookById:
+    handler: handlers/getBookById.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3
+    events:
+      - http:
+          path: books/{id}
+          method: get
+  updateBook:
+    handler: handlers/updateBook.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3
+    events:
+      - http:
+          path: books/{id}
+          method: put
+  deleteBook:
+    handler: handlers/deleteBook.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3
+    events:
+      - http:
+          path: books/{id}
+          method: delete
+  restoreBook:
+    handler: handlers/restoreBook.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3
+    events:
+      - http:
+          path: books/{id}/restore
+          method: post
+
+package:
+  individually: true
+  patterns:
+    - 'handlers/**'
+    - 'utils/**'
+    - 'package.json'
+    - 'package-lock.json'
+    - '!terraform/**'
+    - '!**/*.tf'
+    - '!**/*.tfstate*'
+    - '!tests/**'
+    - '!README.md'
+    - '!*.log'
+    - '!.git/**'
+
+custom:
+  build:
+    esbuild: true
+    bundle: true
+    minify: false
+    sourcemap: false
+    target: node18
+    platform: node
+    concurrency: 10
+    external: ['aws-sdk']
+
+resources:
+  Resources:
+    BooksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Books
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH

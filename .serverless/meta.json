@@ -1,0 +1,286 @@
+{
+  "/Users/rishi/Desktop/Projects/book-api-lambda/serverless.yml": {
+    "versionFramework": "4.14.3",
+    "servicePath": "/Users/rishi/Desktop/Projects/book-api-lambda/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "book-api-lambda",
+      "frameworkVersion": "4",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "eu-west-1",
+        "environment": {
+          "DYNAMO_TABLE": "Books",
+          "JWT_SECRET": "<REDACTED>"
+        },
+        "iam": {
+          "role": {
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:GetItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:UpdateItem",
+                  "dynamodb:DeleteItem",
+                  "dynamodb:Scan"
+                ],
+                "Resource": "arn:aws:dynamodb:eu-west-1:*:table/Books"
+              }
+            ]
+          }
+        },
+        "stage": "dev",
+        "versionFunctions": true
+      },
+      "functions": {
+        "getBooks": {
+          "handler": "handlers/getBooks.handler",
+          "layers": [
+            "arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3"
+          ],
+          "events": [
+            {
+              "http": {
+                "path": "books",
+                "method": "get"
+              }
+            }
+          ],
+          "name": "book-api-lambda-dev-getBooks"
+        },
+        "createBook": {
+          "handler": "handlers/createBook.handler",
+          "layers": [
+            "arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3"
+          ],
+          "events": [
+            {
+              "http": {
+                "path": "books",
+                "method": "post"
+              }
+            }
+          ],
+          "name": "book-api-lambda-dev-createBook"
+        },
+        "getBookById": {
+          "handler": "handlers/getBookById.handler",
+          "layers": [
+            "arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3"
+          ],
+          "events": [
+            {
+              "http": {
+                "path": "books/{id}",
+                "method": "get"
+              }
+            }
+          ],
+          "name": "book-api-lambda-dev-getBookById"
+        },
+        "updateBook": {
+          "handler": "handlers/updateBook.handler",
+          "layers": [
+            "arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3"
+          ],
+          "events": [
+            {
+              "http": {
+                "path": "books/{id}",
+                "method": "put"
+              }
+            }
+          ],
+          "name": "book-api-lambda-dev-updateBook"
+        },
+        "deleteBook": {
+          "handler": "handlers/deleteBook.handler",
+          "layers": [
+            "arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3"
+          ],
+          "events": [
+            {
+              "http": {
+                "path": "books/{id}",
+                "method": "delete"
+              }
+            }
+          ],
+          "name": "book-api-lambda-dev-deleteBook"
+        },
+        "restoreBook": {
+          "handler": "handlers/restoreBook.handler",
+          "layers": [
+            "arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3"
+          ],
+          "events": [
+            {
+              "http": {
+                "path": "books/{id}/restore",
+                "method": "post"
+              }
+            }
+          ],
+          "name": "book-api-lambda-dev-restoreBook"
+        }
+      },
+      "package": {
+        "individually": true,
+        "patterns": [
+          "handlers/**",
+          "utils/**",
+          "package.json",
+          "package-lock.json",
+          "!terraform/**",
+          "!**/*.tf",
+          "!**/*.tfstate*",
+          "!tests/**",
+          "!README.md",
+          "!*.log",
+          "!.git/**"
+        ],
+        "artifactsS3KeyDirname": "serverless/book-api-lambda/dev/code-artifacts"
+      },
+      "custom": {
+        "build": {
+          "esbuild": true,
+          "bundle": true,
+          "minify": false,
+          "sourcemap": false,
+          "target": "node18",
+          "platform": "node",
+          "concurrency": 10,
+          "external": [
+            "aws-sdk"
+          ]
+        }
+      },
+      "resources": {
+        "Resources": {
+          "BooksTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "Books",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "id",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "id",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "eu-west-1",
+      "environment": {
+        "DYNAMO_TABLE": "Books",
+        "JWT_SECRET": "<REDACTED>"
+      },
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:Scan"
+              ],
+              "Resource": "arn:aws:dynamodb:eu-west-1:*:table/Books"
+            }
+          ]
+        }
+      },
+      "stage": "dev",
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: book-api-lambda\n\nframeworkVersion: '4'\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: eu-west-1\n  environment:\n    DYNAMO_TABLE: Books\n    JWT_SECRET: your_secret\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - dynamodb:GetItem\n            - dynamodb:PutItem\n            - dynamodb:UpdateItem\n            - dynamodb:DeleteItem\n            - dynamodb:Scan\n          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/Books\n\nfunctions:\n  getBooks:\n    handler: handlers/getBooks.handler\n    layers:\n      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3\n    events:\n      - http:\n          path: books\n          method: get\n  createBook:\n    handler: handlers/createBook.handler\n    layers:\n      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3\n    events:\n      - http:\n          path: books\n          method: post\n  getBookById:\n    handler: handlers/getBookById.handler\n    layers:\n      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3\n    events:\n      - http:\n          path: books/{id}\n          method: get\n  updateBook:\n    handler: handlers/updateBook.handler\n    layers:\n      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3\n    events:\n      - http:\n          path: books/{id}\n          method: put\n  deleteBook:\n    handler: handlers/deleteBook.handler\n    layers:\n      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3\n    events:\n      - http:\n          path: books/{id}\n          method: delete\n  restoreBook:\n    handler: handlers/restoreBook.handler\n    layers:\n      - arn:aws:lambda:eu-west-1:219257094456:layer:aws-sdk-custom:3\n    events:\n      - http:\n          path: books/{id}/restore\n          method: post\n\npackage:\n  individually: true\n  patterns:\n    - 'handlers/**'\n    - 'utils/**'\n    - 'package.json'\n    - 'package-lock.json'\n    - '!terraform/**'\n    - '!**/*.tf'\n    - '!**/*.tfstate*'\n    - '!tests/**'\n    - '!README.md'\n    - '!*.log'\n    - '!.git/**'\n\ncustom:\n  build:\n    esbuild: true\n    bundle: true\n    minify: false\n    sourcemap: false\n    target: node18\n    platform: node\n    concurrency: 10\n    external: ['aws-sdk']\n\nresources:\n  Resources:\n    BooksTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: Books\n        BillingMode: PAY_PER_REQUEST\n        AttributeDefinitions:\n          - AttributeName: id\n            AttributeType: S\n        KeySchema:\n          - AttributeName: id\n            KeyType: HASH",
+    "command": [
+      "remove"
+    ],
+    "options": {},
+    "orgId": "5c0121e3-c08e-45da-8a59-9704d10e057d",
+    "orgName": "rishig",
+    "userId": "Sh8r78rhMS1HHmlM8l",
+    "userName": "rishig",
+    "serviceProviderAwsAccountId": "219257094456",
+    "serviceProviderAwsCfStackName": "book-api-lambda-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:eu-west-1:219257094456:stack/book-api-lambda-dev/0d727a70-334d-11f0-8b96-02160a8854d7",
+    "serviceProviderAwsCfStackCreated": "2025-05-17T18:30:48.297Z",
+    "serviceProviderAwsCfStackUpdated": "2025-05-17T19:38:39.881Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "RestoreBookLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:219257094456:function:book-api-lambda-dev-restoreBook:30",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-book-api-lambda-dev-RestoreBookLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "UpdateBookLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:219257094456:function:book-api-lambda-dev-updateBook:30",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-book-api-lambda-dev-UpdateBookLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "CreateBookLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:219257094456:function:book-api-lambda-dev-createBook:30",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-book-api-lambda-dev-CreateBookLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "GetBooksLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:219257094456:function:book-api-lambda-dev-getBooks:30",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-book-api-lambda-dev-GetBooksLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "GetBookByIdLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:219257094456:function:book-api-lambda-dev-getBookById:30",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-book-api-lambda-dev-GetBookByIdLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "DeleteBookLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:219257094456:function:book-api-lambda-dev-deleteBook:30",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-book-api-lambda-dev-DeleteBookLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://68xkf7hueg.execute-api.eu-west-1.amazonaws.com/dev",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-book-api-lambda-dev-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-eu-west-1-abee9671-599e",
+        "ExportName": "sls-book-api-lambda-dev-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}
