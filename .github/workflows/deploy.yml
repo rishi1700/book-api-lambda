@@ -44,5 +44,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: 🚀 Deploy with Serverless
-        run: npx serverless deploy --stage dev
+      - name: 🚀 Deploy with Serverless v3 (no login required)
+        run: |
+          npm install -g serverless@3
+          serverless deploy --stage dev
