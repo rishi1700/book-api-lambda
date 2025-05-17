@@ -1,0 +1,52 @@
+name: Lambda ZIP Build & S3 Upload
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  package-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🗜️ Build Lambda ZIP
+        run: |
+          zip -r book-api.zip handlers utils package.json package-lock.json
+
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: 🚀 Upload ZIP to S3
+        run: |
+          aws s3 cp book-api.zip s3://book-api-artifacts/book-api.zip
+
+      - name: 📦 Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: 🏗️ Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: 🔎 Terraform Plan
+        run: terraform plan
+        working-directory: ./terraform
+
+      - name: 🚀 Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
